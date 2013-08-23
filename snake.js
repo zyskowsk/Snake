@@ -1,4 +1,5 @@
-var _= require('./underscore')
+// node
+// var _= require('./underscore')
 
 SnakeGame = {};
 
@@ -47,75 +48,94 @@ SnakeGame.Snake = (function() {
 	return Snake;
 })();
 
-SnakeGame.Game = (function() {
+SnakeGame.Game = (function () {
 	function Game(size) {
 		this.board = new SnakeGame.Board(size);
 		this.snake = this.board.snake;
+		this.over = false;
+		this.size = size;
+		this.placeFood();
 	}
 
-	Game.prototype.step = function() {
-
-		if (this.nextChar() === "F ") {
+	Game.prototype.step = function () {
+		if (this.isFoodAhead()) {
 			this.snake.eat();
-			this.board.placeFood();
-		} else if (this.nextChar() != "  ") {
-			console.log("Game Over");
+			this.placeFood();
+		} else if (this.isEndingMove(this.snake.lookAhead())) {
+			this.over = true;
 		} else {
 			this.snake.move();
 		}
 	}
 
-	Game.prototype.nextChar = function() {
-		var nextPos = this.snake.lookAhead();
-		return this.board.board[nextPos[0]][nextPos[1]];
+	Game.prototype.isEndingMove= function (pos) {
+		var len = this.snake.length;
+		var snake = this.snake.body;
+		_.each(snake, function(sPos) {
+			if ( pos[0] === sPos[0] && pos[1] === sPos[1]) {
+				return true;
+			}
+		}); 
+
+		return (pos[0] > 29 || pos[0] < 0 || pos[1] > 29 || pos[0] < 0);
 	}
 
-	Game.prototype.isFoodAhead = function() {
-		return nextChar() === "F "
+	// For ASCII rendering
+
+	// Game.prototype.nextChar = function() {
+	// 	var nextPos = this.snake.lookAhead();
+	// 	console.log(nextPos);
+	// 	if ((nextPos[0] === this.size) || (nextPos[0] < 0)) {
+	// 		return "Off Board";
+	// 	} else {
+	// 		return this.board.board[nextPos[0]][nextPos[1]];
+	// 	}
+	// }
+
+	Game.prototype.isFoodAhead = function () {
+		var food = this.currentFoodPos;
+		var nextPos = this.snake.lookAhead();
+		return (food[0] === nextPos[0] && food[1] === nextPos[1]);
+	}
+
+	Game.prototype.placeFood = function() {
+		var openSpaces = this.board.openSpaces(),
+			  len = openSpaces.length,
+			  randomIndex = Math.floor(Math.random() * len);
+			  
+		this.currentFoodPos = openSpaces[randomIndex];
 	}
 
  
-	Game.prototype.render = function() {
+	Game.prototype.render = function () {
 		return this.board.render();
 	}
 
 	return Game;
 })();
 
-SnakeGame.Board = (function() {
+SnakeGame.Board = (function () {
 
 	function Board(size) {
 		this.size = size;
 		this.snake = new SnakeGame.Snake;
-		this.cleanBoard();
-		this.placeFood();
+		// this.cleanBoard();
+		// this.placeFood();
 	}
 
-	Board.prototype.drawSnake = function() {
-		var that = this,
-			  len = this.snake.length,
-			  body = this.snake.body;
+	// Board.prototype.cleanBoard = function() {
+	// 	var that = this,
+	// 		  board = [];
 
-		_.each(body, function(pos) {
-			var x = pos[0],
-					y = pos[1];
-			that.board[x][y] = "* ";
-		});
-	}
+ // 		_.times(that.size, function(i) {
+	// 		board.push([]);
+	// 		_.times(that.size, function() {
+	// 			board[i].push("  ");
+	// 		});
+	// 	});
 
-	Board.prototype.cleanBoard = function() {
-		var that = this,
-			  board = [];
-
- 		_.times(that.size, function(i) {
-			board.push([]);
-			_.times(that.size, function() {
-				board[i].push("  ");
-			});
-		});
-
-		this.board = board;
-	}
+	// 	this.board = board;
+	// }
 
 	Board.prototype.openSpaces = function() {
 		var that = this;
@@ -148,89 +168,53 @@ SnakeGame.Board = (function() {
 		return openSpaces;
 	}
 
-	Board.prototype.placeFood = function() {
-		var openSpaces = this.openSpaces(),
-			  len = openSpaces.length,
-			  randomIndex = Math.floor(Math.random() * len);
-			  
-		this.currentFoodPos = openSpaces[randomIndex];
-	}
+	// ASCII render
 
-	Board.prototype.render = function() {
-		var randX = this.currentFoodPos[0],
-				randY = this.currentFoodPos[1];
+	// Board.prototype.render = function() {
+	// 	var randX = this.currentFoodPos[0],
+	// 			randY = this.currentFoodPos[1];
 
-		this.cleanBoard();
-		this.board[randX][randY] = 'F ';
-		this.drawSnake();
+	// 	this.cleanBoard();
+	// 	this.board[randX][randY] = 'F ';
+	// 	this.drawSnake();
 
-		var boardString = " "
-		_.times((this.board[0].length) * 2, function() { boardString += "-" });
+	// 	var boardString = " "
+	// 	_.times((this.board[0].length) * 2, function() { boardString += "-" });
 
-		boardString += '\n';
+	// 	boardString += '\n';
 
-		_.each(this.board, function(row) {
-			boardString += '|'
+	// 	_.each(this.board, function(row) {
+	// 		boardString += '|'
 
-			_.each(row, function(elem) {
-				boardString += elem;
-			});
+	// 		_.each(row, function(elem) {
+	// 			boardString += elem;
+	// 		});
 
-			boardString += '|\n'
-		});
+	// 		boardString += '|\n'
+	// 	});
 
-		boardString += " ";
-		_.times((this.board[0].length) * 2, function() { boardString += "-" });
-		boardString += '\n';
+	// 	boardString += " ";
+	// 	_.times((this.board[0].length) * 2, function() { boardString += "-" });
+	// 	boardString += '\n';
 
 
 		
-		return boardString.toString();
-	}
+	// 	return boardString;
+	// }
+
+		// Board.prototype.drawSnake = function() {
+	// 	var that = this,
+	// 		  len = this.snake.length,
+	// 		  body = this.snake.body;
+
+	// 	_.each(body, function(pos) {
+	// 		var x = pos[0],
+	// 				y = pos[1];
+	// 		that.board[x][y] = "* ";
+	// 	});
+	// }
+
 
 	return Board
 })();
-
-// Test
-
-// var game = new SnakeGame.Game(8);
-// var snake = game.snake;
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// snake.turn("south");
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// snake.turn("west");
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// snake.turn("north");
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-// console.log(game.render());
-// game.step();
-
 
