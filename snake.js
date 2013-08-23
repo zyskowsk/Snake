@@ -1,5 +1,3 @@
-// node
-// var _= require('./underscore')
 
 SnakeGame = {};
 
@@ -69,28 +67,19 @@ SnakeGame.Game = (function () {
 	}
 
 	Game.prototype.isEndingMove= function (pos) {
+		var isSnakePiece = false
 		var len = this.snake.length;
 		var snake = this.snake.body;
 		_.each(snake, function(sPos) {
 			if ( pos[0] === sPos[0] && pos[1] === sPos[1]) {
-				return true;
+				isSnakePiece = true;
 			}
 		}); 
 
-		return (pos[0] > 29 || pos[0] < 0 || pos[1] > 29 || pos[0] < 0);
+		var isOffBoard = (pos[0] > 29 || pos[0] < 0 || pos[1] > 29 || pos[1] < 0)
+
+		return isOffBoard || isSnakePiece;
 	}
-
-	// For ASCII rendering
-
-	// Game.prototype.nextChar = function() {
-	// 	var nextPos = this.snake.lookAhead();
-	// 	console.log(nextPos);
-	// 	if ((nextPos[0] === this.size) || (nextPos[0] < 0)) {
-	// 		return "Off Board";
-	// 	} else {
-	// 		return this.board.board[nextPos[0]][nextPos[1]];
-	// 	}
-	// }
 
 	Game.prototype.isFoodAhead = function () {
 		var food = this.currentFoodPos;
@@ -119,23 +108,7 @@ SnakeGame.Board = (function () {
 	function Board(size) {
 		this.size = size;
 		this.snake = new SnakeGame.Snake;
-		// this.cleanBoard();
-		// this.placeFood();
 	}
-
-	// Board.prototype.cleanBoard = function() {
-	// 	var that = this,
-	// 		  board = [];
-
- // 		_.times(that.size, function(i) {
-	// 		board.push([]);
-	// 		_.times(that.size, function() {
-	// 			board[i].push("  ");
-	// 		});
-	// 	});
-
-	// 	this.board = board;
-	// }
 
 	Board.prototype.openSpaces = function() {
 		var that = this;
@@ -167,53 +140,6 @@ SnakeGame.Board = (function () {
 
 		return openSpaces;
 	}
-
-	// ASCII render
-
-	// Board.prototype.render = function() {
-	// 	var randX = this.currentFoodPos[0],
-	// 			randY = this.currentFoodPos[1];
-
-	// 	this.cleanBoard();
-	// 	this.board[randX][randY] = 'F ';
-	// 	this.drawSnake();
-
-	// 	var boardString = " "
-	// 	_.times((this.board[0].length) * 2, function() { boardString += "-" });
-
-	// 	boardString += '\n';
-
-	// 	_.each(this.board, function(row) {
-	// 		boardString += '|'
-
-	// 		_.each(row, function(elem) {
-	// 			boardString += elem;
-	// 		});
-
-	// 		boardString += '|\n'
-	// 	});
-
-	// 	boardString += " ";
-	// 	_.times((this.board[0].length) * 2, function() { boardString += "-" });
-	// 	boardString += '\n';
-
-
-		
-	// 	return boardString;
-	// }
-
-		// Board.prototype.drawSnake = function() {
-	// 	var that = this,
-	// 		  len = this.snake.length,
-	// 		  body = this.snake.body;
-
-	// 	_.each(body, function(pos) {
-	// 		var x = pos[0],
-	// 				y = pos[1];
-	// 		that.board[x][y] = "* ";
-	// 	});
-	// }
-
 
 	return Board
 })();

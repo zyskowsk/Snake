@@ -1,133 +1,141 @@
-$(function() {
-	$('body').append("<div class=board></div>");
-});
+SnakeGame.UI = (function () {
 
-STEP_TIME_MILLIS = 150;
-var stepTimer;
-newGame();
-listen();
+	var STEP_TIME_MILLIS = 150;
 
-function newGame() {
-	game = new SnakeGame.Game(30);
-	playing = true;
-	paused = false;
-	clearBoard();
-	render();
-	update();
-}
+	function UI(size) {
+		this.playing = true;
+		this.paused = false;
+		this.game = new SnakeGame.Game(30);
+	}
 
-function render() {
-	var size = game.board.size;
-	$(function () {
-		for (i = 0; i < size; i++) {
-			for(j = 0; j < size; j++) {
-					$('.board').append(
-								"<div class=boardPiece id=piece_" + i + "_" + j + "></div>");
-			}
-		}
-	});
-}
+	UI.prototype.newGame = function () {
+		game = new SnakeGame.Game(30);
+		playing = true;
+		paused = false;
+		this.clearBoard();
+		this.render();
+		this.update();
+		this.listen();
+	}
 
-function update() {
-	var size = game.board.size;
-	$(function () {
-		$('.boardPiece').removeClass('snake').removeClass('apple');
-	});
-
-	drawSnake();
-	drawApple();
-}
-
-function clearBoard() {
-	$(function () {
-		$('.boardPiece').remove();
-	});
-}
-
-function drawSnake() {
-  var len = game.board.snake.length,
-  	  body = game.board.snake.body;
-
-	$(function() {
-		_.each(body, function(pos) {
-			var x = pos[0],
-					y = pos[1];
-			var piece = $("#piece_" + x + "_" + y).addClass('snake');
-		});
-	});
-}
-
-function drawApple() {
-	var apple = game.currentFoodPos;
-
-	$(function () {
-		$("#piece_" + apple[0] + "_" + apple[1]).addClass('apple');
-	});
-}
-
-function listen() {
-	$('html').keydown(function (event) {
-		switch(event.keyCode) {
-			case 82:
-				newGame();
-				pause();
-				break;
-			case 83:
-				run();
-				break;
-			case 37:
-				game.snake.turn('west');
-				break;
-			case 38:
-				game.snake.turn('north');
-				break;
-			case 39:
-				game.snake.turn('east');
-				break;
-			case 40:
-				game.snake.turn('south');
-				break;
-			case 80:
-				if (paused) {
-					run();
-					paused = false;
-				} else {
-					pause();
-					paused = true;
+	UI.prototype.render = function () {
+		var size = this.game.board.size;
+		$(function () {
+			for (i = 0; i < size; i++) {
+				for(j = 0; j < size; j++) {
+						$('.board').append(
+									"<div class=boardPiece id=piece_" + i + "_" + j + "></div>");
 				}
-				break;
-			default:
-				console.log("something else happend");
-				console.log(event.keyCode);
-				break;
-		}
-	});
-}
+			}
+		});
+	}
 
-function pause() {
-	window.clearInterval(stepTimer);
-}
+	UI.prototype.update = function () {
+		var size = this.game.board.size;
+		$(function () {
+			$('.boardPiece').removeClass('snake').removeClass('apple');
+		});
 
-function run_step() {
+		this.drawSnake();
+		this.drawApple();
+	}
 
-	$(function() {
-		if (game.over) {
-			$('body').append("<p> GAME OVER </p>");
-			newGame();
-			pause();
+	UI.prototype.clearBoard = function () {
+		$(function () {
+			$('.boardPiece').remove();
+		});
+	}
+
+	UI.prototype.drawSnake = function () {
+	  var len = this.game.board.snake.length,
+	  	  body = this.game.board.snake.body;
+
+		$(function() {
+			_.each(body, function(pos) {
+				var x = pos[0],
+						y = pos[1];
+				var piece = $("#piece_" + x + "_" + y).addClass('snake');
+			});
+		});
+	}
+
+	UI.prototype.drawApple = function () {
+		var apple = this.game.currentFoodPos;
+
+		$(function () {
+			$("#piece_" + apple[0] + "_" + apple[1]).addClass('apple');
+		});
+	}
+
+	UI.prototype.listen = function () {
+		var that = this;
+
+		$('html').keydown(function (event) {
+			switch(event.keyCode) {
+				case 82:
+					that.newGame();
+					that.pause();
+					break;
+				case 83:
+					that.run();
+					break;
+				case 37:
+					that.game.snake.turn('west');
+					break;
+				case 38:
+					that.game.snake.turn('north');
+					break;
+				case 39:
+					that.game.snake.turn('east');
+					break;
+				case 40:
+					that.game.snake.turn('south');
+					break;
+				case 80:
+					if (that.paused) {
+						that.run();
+						that.paused = false;
+					} else {
+						that.pause();
+						paused = true;
+					}
+					break;
+				default:
+					break;
+			}
+		});
+	}
+
+	UI.prototype.pause = function () {
+		window.clearInterval(stepTimer);
+	}
+
+	UI.prototype.runStep = function () {
+
+		if (this.game.over) {
+			$(function () {
+				$('body').append("<p> GAME OVER </p>");
+			})
+			this.newGame();
+			this.pause();
 		} else {
-			game.step();
-			update();
-			console.log(game.currentFoodPos);
+			this.game.step();
+			this.update();
 		}
-	});
 
-	return playing;
-}
+		return this.playing;
+	}
 
-function run() {
-	stepTimer = window.setInterval(run_step, STEP_TIME_MILLIS);
-}
+	UI.prototype.run = function () {
+		console.log(this);
+		stepTimer = window.setInterval(this.runStep.bind(this), STEP_TIME_MILLIS);
+	}
 
+	return UI;
+})();
+
+
+gameUI = new SnakeGame.UI(30);
+gameUI.newGame();
 
 
