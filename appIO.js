@@ -1,21 +1,24 @@
 SnakeGame.UI = (function () {
 
-	var STEP_TIME_MILLIS = 150;
+	var STEP_TIME_MILLIS = 100;
 
 	function UI(size) {
 		this.playing = true;
 		this.paused = false;
-		this.game = new SnakeGame.Game(30);
+		this.game = new SnakeGame.Game(size)
 	}
 
 	UI.prototype.newGame = function () {
-		game = new SnakeGame.Game(30);
 		playing = true;
 		paused = false;
 		this.clearBoard();
 		this.render();
 		this.update();
 		this.listen();
+	}
+
+	UI.prototype.score = function () {
+		return (this.game.snake.body.length - 3) * 5;
 	}
 
 	UI.prototype.render = function () {
@@ -31,9 +34,14 @@ SnakeGame.UI = (function () {
 	}
 
 	UI.prototype.update = function () {
+		var that = this;
 		var size = this.game.board.size;
 		$(function () {
 			$('.boardPiece').removeClass('snake').removeClass('apple');
+		});
+
+		$(function () {
+			$('.score').html("Score: " + that.score());
 		});
 
 		this.drawSnake();
@@ -73,8 +81,7 @@ SnakeGame.UI = (function () {
 		$('html').keydown(function (event) {
 			switch(event.keyCode) {
 				case 82:
-					that.newGame();
-					that.pause();
+					location.reload();
 					break;
 				case 83:
 					that.run();
@@ -95,9 +102,15 @@ SnakeGame.UI = (function () {
 					if (that.paused) {
 						that.run();
 						that.paused = false;
+						$(function() {
+							$('.message').html("");
+						});
 					} else {
 						that.pause();
-						paused = true;
+						$(function() {
+							$('.message').html("PAUSED");
+						});
+						that.paused = true;
 					}
 					break;
 				default:
@@ -111,23 +124,20 @@ SnakeGame.UI = (function () {
 	}
 
 	UI.prototype.runStep = function () {
+		var that = this
 
 		if (this.game.over) {
 			$(function () {
-				$('body').append("<p> GAME OVER </p>");
-			})
-			this.newGame();
-			this.pause();
+				$('.message').html("GAME OVER");
+			});
+			new SnakeGame.UI(30);
 		} else {
 			this.game.step();
 			this.update();
 		}
-
-		return this.playing;
 	}
 
 	UI.prototype.run = function () {
-		console.log(this);
 		stepTimer = window.setInterval(this.runStep.bind(this), STEP_TIME_MILLIS);
 	}
 
@@ -135,7 +145,7 @@ SnakeGame.UI = (function () {
 })();
 
 
-gameUI = new SnakeGame.UI(30);
-gameUI.newGame();
+game = new SnakeGame.UI(30);
+game.newGame();
 
 

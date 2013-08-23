@@ -76,7 +76,8 @@ SnakeGame.Game = (function () {
 			}
 		}); 
 
-		var isOffBoard = (pos[0] > 29 || pos[0] < 0 || pos[1] > 29 || pos[1] < 0)
+		var isOffBoard = (pos[0] >= this.board.size || pos[0] < 0 || 
+												pos[1] >= this.board.size || pos[1] < 0)
 
 		return isOffBoard || isSnakePiece;
 	}
