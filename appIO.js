@@ -5,6 +5,7 @@ SnakeGame.UI = (function () {
 	function UI(size) {
 		this.playing = true;
 		this.paused = false;
+		this.started = false;
 		this.game = new SnakeGame.Game(size)
 	}
 
@@ -84,19 +85,30 @@ SnakeGame.UI = (function () {
 					location.reload();
 					break;
 				case 83:
-					that.run();
+					if (that.started === false) {
+						that.run();
+						that.started = true;
+					}
 					break;
 				case 37:
-					that.game.snake.turn('west');
+					if (!that.game.snake.isOppositeDirection('west')) {
+					  that.game.snake.turn('west');
+					} 
 					break;
 				case 38:
-					that.game.snake.turn('north');
+					if (!that.game.snake.isOppositeDirection('north')) {
+					  that.game.snake.turn('north');
+					} 
 					break;
 				case 39:
-					that.game.snake.turn('east');
+					if (!that.game.snake.isOppositeDirection('east')) {
+					  that.game.snake.turn('east');
+					} 
 					break;
 				case 40:
-					that.game.snake.turn('south');
+					if (!that.game.snake.isOppositeDirection('south')) {
+					  that.game.snake.turn('south');
+					} 
 					break;
 				case 80:
 					if (that.paused) {

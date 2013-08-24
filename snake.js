@@ -3,7 +3,7 @@ SnakeGame = {};
 
 SnakeGame.Snake = (function() {
 
-	var compass = {
+	var COMPASS = {
 		north: [-1, 0],
 		east: [0, 1],
 		south: [1, 0],
@@ -21,7 +21,7 @@ SnakeGame.Snake = (function() {
 	}
 
 	Snake.prototype.turn = function(newDirection) {
-		this.currentDirection = compass[newDirection];
+		this.currentDirection = COMPASS[newDirection];
 	}
 
 	Snake.prototype.lookAhead = function() {
@@ -29,6 +29,11 @@ SnakeGame.Snake = (function() {
 		var nextPos = [this.head()[0] + dir[0], this.head()[1] + dir[1]];
 
 		return nextPos;
+	}
+
+	Snake.prototype.isOppositeDirection = function(direction) {
+		return ((COMPASS[direction][0] === this.currentDirection[0]) ||
+					   (COMPASS[direction][1] === this.currentDirection[1]));
 	}
 
 	Snake.prototype.eat = function() {
@@ -112,34 +117,54 @@ SnakeGame.Board = (function () {
 	}
 
 	Board.prototype.openSpaces = function() {
-		var that = this;
-		var size = this.size;
 		var allSpaces = [];
+		var size = this.size;
+
 		_.times(size, function(i) {
 			_.times(size, function(j) {
 				allSpaces.push([i,j]);
 			});
 		});
 
-		openSpaces = _.reject(allSpaces, function(pos) {
-			var x = pos[0],
-					y = pos[1];
+		return twoDimArrayDifference(allSpaces, this.snake.body);
+	}
 
-			var isTaken = function() {
-				var isTaken = false
-				_.times(that.snake.length, function(i) {
-					if( x === that.snake.body[i][0] &&
-						  	y === that.snake.body[i][1] ) {
-						isTaken = true;
-					} 
-				});
-				return isTaken;
-			};
 
-			return isTaken();
+	/* Utility Methods */
+
+	function areEqualArrays(array1, array2) {
+		var sameLength = array1.length == array2.length;
+		var equalElements = true;
+
+		for(var i = 0, len = array1.length; i < len; i++) {
+			if (array1[i] !== array2[i]) {
+				equalElements = false;
+			}
+		}
+
+		return sameLength && equalElements;
+	} 
+
+	function includes(array, element) {
+		var includes = false;
+		for (var i = 0, len = array.length; i < len; i++) {
+			if(areEqualArrays(array[i], element)) {
+				includes = true;
+			}
+		}
+
+		return includes;
+	}
+
+	function twoDimArrayDifference(array1, array2) {
+		var diffArray = [];
+		_.each(array1, function(elem) {
+			if (!includes(array2, elem)) {
+				diffArray.push(elem);
+			}
 		});
 
-		return openSpaces;
+		return diffArray;
 	}
 
 	return Board
